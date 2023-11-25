@@ -1,0 +1,37 @@
+*Helena Khalilieh 
+
+*Programming an HTTP Proxy Server
+
+*threadpool.h:This file declares the functionality associated with your implementation of a threadpool.
+ proxyServer.c:It contains the main code for server and client.Also the http request 
+ threadpool.c:It implement the functions in threadpool
+
+* The functions that we have in the threadpool.c:
+   -threadpool* create_threadpool(int num_threads_in_pool):create_threadpool creates a fixed-sized threadpool.  If the function succeeds, it returns a(non-NULL)"threadpool", else it returns NULL.
+   -void dispatch(threadpool* tp, dispatch_fn dispatch_to_here, void *arg):dispatch enter a "job" of type work_t into the queue.when an available thread takes a job from the queue, it will call the function "dispatch_to_here" with argument "arg".
+   -void* do_work(void* p):The work function of the thread
+   -void destroy_threadpool(threadpool* tp): destroy_threadpool kills the threadpool, causing all threads in it to commit suicide, and then frees all the memory associated with the threadpool.
+
+
+*How to compile the code in the terminal :gcc -Wall -g -c proxyServer.c 
+                                          gcc -Wall -g -c threadpool.c 
+                                          gcc -Wall -g -o proxyServer proxyServer.o threadpool.o -pthread 
+
+*How to run: proxyServer <port> <pool-size> <max-number-of-request> <filter>
+                                         
+-We have to use an external terminal because we need to do the telnet,the compile code: telnet localhost 10000
+                                                                                        GET http://www.example.com/HTTP/1.0
+                                                                                        Host :example.com
+                                           
+    
+*The program we write will work as follows:The proxy server gets an HTTP request from the client and performs some predefined checks on it. If the request is found legal, it first searches for the requested file in its local filesystem, if it’s saved locally, the proxy creates an HTTP response and return the file, otherwise, it forwards the request to the appropriate web server, and sends the response back to the client. If the request is not legal, it sends an error response to the client without sending anything to the server
+
+* The functions that we have in the file:
+   -static void err_reply(const int sd, const int code, const char * hdr, const char * msg):Send an error reply over a socket
+   -static int read_headers(const int sd, char * buf, const size_t buf_size): Send the HTTP request
+   -static int is_legal(const int sd, const char * buf, const size_t buf_len, char hname[NI_MAXHOST], char pname[PATH_MAX]): extract host
+   -static int is_resolveable(const char * hname):Check if we can get IP for that hostname
+   -static int is_filtered(const char * hname, const struct filter * filt):Check if a host/ip is filtered
+   -static int open_cache_file(const char * hname, const char * pname):Open a file from cache, based on hostname and URL path
+  
+   
